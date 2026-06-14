@@ -1,0 +1,6 @@
+-keep class androidx.lifecycle.** { *; }
+-keep class androidx.compose.runtime.** { *; }
+-keep class androidx.compose.ui.** { *; }
+-keep class androidx.hilt.** { *; }
+-keep class com.reypablo.lodowka.** { *; }
+-keep class * implements androidx.compose.runtime.Composable
