@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Lodowka</string>
+    <string name="fridge_title">My Fridge</string>
+    <string name="recipes_title">Recipes</string>
+    <string name="shopping_title">Shopping List</string>
+    <string name="history_title">History</string>
+</resources>
