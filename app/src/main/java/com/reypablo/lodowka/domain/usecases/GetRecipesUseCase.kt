@@ -4,6 +4,7 @@ import com.reypablo.lodowka.domain.models.Recipe
 import com.reypablo.lodowka.domain.repositories.FridgeRepository
 import com.reypablo.lodowka.domain.repositories.RecipeRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 

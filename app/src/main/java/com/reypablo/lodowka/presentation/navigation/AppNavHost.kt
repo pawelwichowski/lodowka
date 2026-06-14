@@ -1,7 +1,7 @@
 package com.reypablo.lodowka.presentation.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -11,6 +11,7 @@ import com.reypablo.lodowka.presentation.screens.fridge.FridgeScreen
 import com.reypablo.lodowka.presentation.screens.fridge.FridgeViewModel
 import com.reypablo.lodowka.presentation.screens.history.HistoryScreen
 import com.reypablo.lodowka.presentation.screens.history.HistoryViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.reypablo.lodowka.presentation.screens.recipe_detail.RecipeDetailScreen
 import com.reypablo.lodowka.presentation.screens.recipe_detail.RecipeDetailViewModel
 import com.reypablo.lodowka.presentation.screens.recipes.RecipesScreen
