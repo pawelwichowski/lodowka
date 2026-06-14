@@ -8,9 +8,8 @@ import com.reypablo.lodowka.data.remote.api.RecipeApiService
 import com.reypablo.lodowka.data.remote.dto.RecipeDto
 import com.reypablo.lodowka.domain.models.Recipe
 import com.reypablo.lodowka.domain.models.RecipeIngredient
-import com.reypablo.lodowka.domain.models.RecipeWithMissing
-import com.reypablo.lodowka.domain.repositories.FridgeRepository
 import com.reypablo.lodowka.domain.repositories.RecipeRepository
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -20,80 +19,23 @@ import javax.inject.Singleton
 class RecipeRepositoryImpl @Inject constructor(
     private val apiService: RecipeApiService,
     private val recipeDao: RecipeDao,
-    private val fridgeRepository: FridgeRepository,
     @ApplicationContext private val context: Context
 ) : RecipeRepository {
 
-    override suspend fun searchRecipes(
-        query: String?,
-        ingredients: List<String>?,
-        cuisine: String?,
-        maxTime: Int?,
-        limit: Int
-    ): Result<List<Recipe>> {
+    override suspend fun getRecipes(ingredients: List<String>): Result<List<Recipe>> {
         return try {
-            val availableIngredients = ingredients ?: getFridgeIngredients()
-            
-            if (availableIngredients.isEmpty()) {
-                return Result.success(emptyList())
-            }
-            
             val request = IngredientFilterRequest(
-                available = availableIngredients,
-                limit = limit
+                available = ingredients,
+                limit = 50
             )
-            
-            val resp = apiService.getRecipesByAvailableIngredients(request, limit)
-            
+            val resp = apiService.getRecipesByAvailableIngredients(request)
+
             if (resp.isSuccessful) {
                 val recipes = resp.body()?.map { it.toDomain() } ?: emptyList()
                 cacheRecipes(recipes)
                 Result.success(recipes)
             } else {
-                Result.failure(Exception("API Error: " + resp.code()))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    override suspend fun getRecipesWithMissingIngredients(
-        availableIngredients: List<String>,
-        maxMissing: Int
-    ): Result<List<RecipeWithMissing>> {
-        return try {
-            val request = IngredientFilterRequest(
-                available = availableIngredients,
-                limit = 100
-            )
-            
-            val resp = apiService.getRecipesByAvailableIngredients(request, 100)
-            
-            if (resp.isSuccessful) {
-                val allRecipes = resp.body()?.map { it.toDomain() } ?: emptyList()
-                
-                val result = allRecipes.map { recipe ->
-                    val available = recipe.ingredients.filter { ing ->
-                        availableIngredients.contains(ing.name, ignoreCase = true)
-                    }
-                    val missing = recipe.ingredients.filter { ing ->
-                        !availableIngredients.contains(ing.name, ignoreCase = true)
-                    }
-                    
-                    if (missing.size <= maxMissing) {
-                        RecipeWithMissing(
-                            recipe = recipe,
-                            missingIngredients = missing,
-                            availableIngredients = available
-                        )
-                    } else {
-                        null
-                    }
-                }.filterNotNull()
-                
-                Result.success(result)
-            } else {
-                Result.failure(Exception("API Error: " + resp.code()))
+                Result.failure(Exception("API Error: ${resp.code()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -107,7 +49,8 @@ class RecipeRepositoryImpl @Inject constructor(
                 return Result.success(cached.toDomain())
             }
             
-            val allRecipes = searchRecipes(limit = 100).getOrElse { return Result.failure(it) }
+            // If not in cache, fetch all and find
+            val allRecipes = getRecipes(emptyList()).getOrElse { return Result.failure(it) }
             val recipe = allRecipes.find { it.id == id }
             
             if (recipe != null) {
@@ -131,26 +74,14 @@ class RecipeRepositoryImpl @Inject constructor(
         recipeDao.insertAll(recipes.map { it.toEntity() })
     }
 
-    private suspend fun getFridgeIngredients(): List<String> {
-        return fridgeRepository.getAllIngredients().first().map { it.name }
-    }
-
     private fun RecipeDto.toDomain(): Recipe {
         return Recipe(
             id = id,
             name = name,
             description = description,
             imageUrl = imageUrl,
-            ingredients = ingredients.map { ing ->
-                RecipeIngredient(ing.name, ing.quantity, ing.unit)
-            },
-            instructions = instructions,
-            cuisine = null,
-            prepTimeMinutes = null,
-            difficulty = null,
-            servings = null,
-            rating = null,
-            source = "Custom API"
+            ingredients = ingredients.map { RecipeIngredient(it.name, it.quantity, it.unit) },
+            instructions = instructions
         )
     }
 
@@ -160,12 +91,8 @@ class RecipeRepositoryImpl @Inject constructor(
             name = name,
             description = description,
             imageUrl = imageUrl,
-            cuisine = cuisine,
-            prepTimeMinutes = prepTimeMinutes,
-            difficulty = difficulty,
-            servings = servings,
-            rating = rating,
-            source = source
+            ingredients = ingredients,
+            instructions = instructions
         )
     }
 
@@ -175,14 +102,8 @@ class RecipeRepositoryImpl @Inject constructor(
             name = name,
             description = description,
             imageUrl = imageUrl,
-            ingredients = emptyList(),
-            instructions = emptyList(),
-            cuisine = cuisine,
-            prepTimeMinutes = prepTimeMinutes,
-            difficulty = difficulty,
-            servings = servings,
-            rating = rating,
-            source = source
+            ingredients = ingredients,
+            instructions = instructions
         )
     }
 }
