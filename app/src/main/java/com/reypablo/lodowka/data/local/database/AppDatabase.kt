@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
 import com.reypablo.lodowka.data.local.dao.FridgeDao
 import com.reypablo.lodowka.data.local.dao.HistoryDao
 import com.reypablo.lodowka.data.local.dao.RecipeDao
@@ -24,7 +23,6 @@ import com.reypablo.lodowka.data.local.entities.ShoppingItemEntity
     version = 1,
     exportSchema = false
 )
-@TypeConverters
 abstract class AppDatabase : RoomDatabase() {
     abstract fun fridgeDao(): FridgeDao
     abstract fun recipeDao(): RecipeDao
