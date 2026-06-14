@@ -32,7 +32,7 @@ class HistoryViewModel @Inject constructor(
 
     private fun loadHistory() {
         _state.value = HistoryState.Loading
-        historyRepository.getAllHistory()
+        historyRepository.getHistory()
             .onEach { entries ->
                 _state.value = HistoryState.Success(entries)
             }
@@ -40,6 +40,8 @@ class HistoryViewModel @Inject constructor(
     }
 
     private fun deleteEntry(entryId: String) {
-        // Implement delete logic if needed
+        viewModelScope.launch {
+            historyRepository.removeFromHistory(entryId)
+        }
     }
 }
