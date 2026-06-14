@@ -24,7 +24,7 @@ import com.reypablo.lodowka.data.local.entities.ShoppingItemEntity
     version = 1,
     exportSchema = false
 )
-@TypeConverters
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun fridgeDao(): FridgeDao
     abstract fun recipeDao(): RecipeDao
