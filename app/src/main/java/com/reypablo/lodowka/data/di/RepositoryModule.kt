@@ -33,9 +33,8 @@ object RepositoryModule {
     fun provideRecipeRepository(
         apiService: RecipeApiService,
         recipeDao: RecipeDao,
-        fridgeRepository: FridgeRepository,
         @ApplicationContext context: Context
-    ): RecipeRepository = RecipeRepositoryImpl(apiService, recipeDao, fridgeRepository, context)
+    ): RecipeRepository = RecipeRepositoryImpl(apiService, recipeDao, context)
 
     @Provides
     @Singleton
