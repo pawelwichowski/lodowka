@@ -36,7 +36,7 @@ class ShoppingListViewModel @Inject constructor(
 
     private fun loadShoppingList() {
         _state.value = ShoppingListState.Loading
-        shoppingRepository.getAllItems()
+        shoppingRepository.getShoppingList()
             .onEach { items ->
                 _state.value = ShoppingListState.Success(items)
             }
@@ -57,14 +57,17 @@ class ShoppingListViewModel @Inject constructor(
 
     private fun toggleChecked(item: ShoppingItem) {
         viewModelScope.launch {
-            val toggled = item.copy(isChecked = !item.isChecked)
-            shoppingRepository.updateItem(toggled)
+            item.id?.let { id ->
+                shoppingRepository.toggleItemChecked(id, !item.isChecked)
+            }
         }
     }
 
     private fun clearAll() {
         viewModelScope.launch {
-            shoppingRepository.clearAll()
+            // Note: Repository has clearCompletedItems(), not clearAll()
+            // For now, we'll use clearCompletedItems()
+            shoppingRepository.clearCompletedItems()
         }
     }
 }
