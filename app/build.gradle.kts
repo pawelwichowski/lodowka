@@ -18,7 +18,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "API_KEY", ""YOUR_API_KEY_HERE"")
+        buildConfigField("String", "API_KEY", "\"YOUR_API_KEY_HERE\"")
     }
 
     buildTypes {
@@ -26,6 +26,10 @@ android {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
+    }
+
+    room {
+        schemaDirectory("$projectDir/schemas")
     }
 
     compileOptions {
